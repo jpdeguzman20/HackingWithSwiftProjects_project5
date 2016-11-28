@@ -66,6 +66,9 @@ class ViewController: UITableViewController {
         // Remember that Strings are case-sensitive, so it's best to make the whole thing lower-case first
         let lowerAnswer = answer.lowercased()
         
+        let errorTitle: String
+        let errorMessage: String
+        
         if isPossible(word: lowerAnswer) {
             if isOriginal(word: lowerAnswer) {
                 if isReal(word: lowerAnswer) {
@@ -75,21 +78,55 @@ class ViewController: UITableViewController {
                     // Update the table view
                     let indexPath = IndexPath(row: 0, section: 0)
                     tableView.insertRows(at: [indexPath], with: .automatic)
+                } else {
+                    errorTitle = "Word not recognized"
+                    errorMessage = "You cna't just make them up, y'know!"
                 }
+            } else {
+                errorTitle = "Word used already"
+                errorMessage = "Be more original!"
+            }
+        } else {
+            errorTitle = "Word not possible"
+            errorMessage = "You can't spell that word from '\(title!.lowercased())'!"
+        }
+        
+        let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
+        present(ac, animated: true)
+    }
+    
+    // Method to check if the word can actually be made out of the original word
+    func isPossible(word: String) -> Bool {
+        // Have a variable to store the original word
+        var tempWord = title!.lowercased()
+        
+        for letter in word.characters {
+            // range(of:) returns an optional (can return nil if not found) position for where the item was found. In this case, we look for the letter from the word we just made and compare it to the letters in the original word. If the original word contains the specified letter, we remove it so that it can't be used again.
+            if let pos = tempWord.range(of: String(letter)) {
+                tempWord.remove(at: pos.lowerBound)
+            } else {
+                return false
             }
         }
-    }
-    
-    func isPossible(word: String) -> Bool {
+        
         return true
     }
     
+    // Method to check if the word has already been used
     func isOriginal(word: String) -> Bool {
-        return true
+        return !usedWords.contains(word)
     }
     
     func isReal(word: String) -> Bool {
-        return true
+        // Create an instance of UITextChecker, which is an iOS class for spotting spelling errors. Helpful for knowing if a word we've entered is an actual (and correctly spelled) word.
+        let checker = UITextChecker()
+        // Used to examine the entire string
+        let range = NSMakeRange(0, word.utf16.count)
+        // Scans the entire word in English and returns the amount of misspelled positions
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+        
+        return misspelledRange.location == NSNotFound
     }
     
     // Overriding these tableView methods help handle the table view data: numberOfRowsInSection and cellForRowAt

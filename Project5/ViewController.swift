@@ -50,7 +50,9 @@ class ViewController: UITableViewController {
         
         // This is a trailing closure. Everything before 'in' describes the closure and everything after it is the closure, thus the closure accepts one parameter of type UIAlertAction. '[unowned self, ac]' prevents creating a strong reference cycle because the closure does not own self and ac.
         let submitAction = UIAlertAction(title: "Submit", style: .default) { [unowned self, ac] (action: UIAlertAction!) in
+            // Force unwrap array of text fields
             let answer = ac.textFields![0]
+            // passes the contents of the text field and sends it to our submit method
             self.submit(answer: answer.text!)
         }
         
@@ -58,6 +60,36 @@ class ViewController: UITableViewController {
         ac.addAction(submitAction)
         
         present(ac, animated: true)
+    }
+    
+    func submit(answer: String) {
+        // Remember that Strings are case-sensitive, so it's best to make the whole thing lower-case first
+        let lowerAnswer = answer.lowercased()
+        
+        if isPossible(word: lowerAnswer) {
+            if isOriginal(word: lowerAnswer) {
+                if isReal(word: lowerAnswer) {
+                    // If the word passes all the tests, insert it into the beginning of the usedWords array
+                    usedWords.insert(answer, at: 0)
+                    
+                    // Update the table view
+                    let indexPath = IndexPath(row: 0, section: 0)
+                    tableView.insertRows(at: [indexPath], with: .automatic)
+                }
+            }
+        }
+    }
+    
+    func isPossible(word: String) -> Bool {
+        return true
+    }
+    
+    func isOriginal(word: String) -> Bool {
+        return true
+    }
+    
+    func isReal(word: String) -> Bool {
+        return true
     }
     
     // Overriding these tableView methods help handle the table view data: numberOfRowsInSection and cellForRowAt

@@ -66,8 +66,8 @@ class ViewController: UITableViewController {
         // Remember that Strings are case-sensitive, so it's best to make the whole thing lower-case first
         let lowerAnswer = answer.lowercased()
         
-        let errorTitle: String
-        let errorMessage: String
+        var errorTitle: String
+        var errorMessage: String
         
         if isPossible(word: lowerAnswer) {
             if isOriginal(word: lowerAnswer) {
@@ -78,9 +78,11 @@ class ViewController: UITableViewController {
                     // Update the table view
                     let indexPath = IndexPath(row: 0, section: 0)
                     tableView.insertRows(at: [indexPath], with: .automatic)
+                    
+                    return
                 } else {
-                    errorTitle = "Word not recognized"
-                    errorMessage = "You cna't just make them up, y'know!"
+                    errorTitle = "Word not recognised or is less than 3 letters"
+                    errorMessage = "Try again!"
                 }
             } else {
                 errorTitle = "Word used already"
@@ -125,6 +127,10 @@ class ViewController: UITableViewController {
         let range = NSMakeRange(0, word.utf16.count)
         // Scans the entire word in English and returns the amount of misspelled positions
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+        
+        if word.utf16.count < 3 {
+            return false
+        }
         
         return misspelledRange.location == NSNotFound
     }
